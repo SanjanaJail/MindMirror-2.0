@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>MindMirror Live Voice Emotion</title>
+<style>
+    body { font-family: 'Arial', sans-serif; text-align: center; background: #f5f7fa; padding: 20px; max-width: 600px; margin: 0 auto; }
+    h2 { color: #4a6fa5; margin-bottom: 25px; }
+    button { padding: 12px 25px; margin: 10px; border: none; border-radius: 30px; cursor: pointer; font-weight: bold; transition: all 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    #startBtn { background: #4CAF50; color: white; }
+    #stopBtn { background: #f44336; color: white; }
+    button:disabled { background: #cccccc !important; cursor: not-allowed; }
+    #status { font-size: 1.2em; margin: 20px 0; min-height: 24px; color: #555; }
+    #mood { font-size: 2.2em; margin: 15px 0; font-weight: bold; color: #333; min-height: 50px; }
+    #userSpeech { margin: 15px 0; font-style: italic; color: #666; min-height: 24px; }
+    audio { margin: 20px 0; width: 100%; }
+    .confidence-bar { height: 8px; background: #e0e0e0; border-radius: 4px; margin: 10px 0; overflow: hidden; }
+    .confidence-level { height: 100%; background: #4a6fa5; width: 0%; transition: width 0.5s; }
+    .emotion-emoji { font-size: 1.5em; margin-right: 8px; }
+</style>
+</head>
+<body>
+<h2>🎙️ MindMirror – Live Voice Emotion</h2>
+<button id="startBtn">🎤 Start Recording</button>
+<button id="stopBtn" disabled>⏹ Stop Recording</button>
+
+<div id="status">Ready to record</div>
+<div id="userSpeech"></div>
+<div id="mood">
+    <span class="emotion-emoji">😐</span>
+    <span>Neutral</span>
+</div>
+<div class="confidence-bar"><div class="confidence-level" id="confidenceBar"></div></div>
+<audio id="playback" controls></audio>
+
+<script>
+let mediaRecorder;
+let audioChunks = [];
+let recognition;
+
+const emotionEmojis = {
+    'Anger': '😠', 'Disgust': '🤢', 'Fear': '😨',
+    'Joy': '😊', 'Optimism': '🌟', 'Sadness': '😢',
+    'Love': '❤️', 'Uncertain': '❓', 'Neutral': '😐'
+};
+
+// 🎙️ Speech Recognition (Browser)
+if ('webkitSpeechRecognition' in window) {
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.onresult = (e) => {
+        const transcript = e.results[0][0].transcript;
+        document.getElementById("userSpeech").textContent = `🗣️ You said: "${transcript}"`;
+    };
+}
+
+// UI elements
+const startBtn = document.getElementById("startBtn");
+const stopBtn = document.getElementById("stopBtn");
+const statusDisplay = document.getElementById("status");
+const moodDisplay = document.getElementById("mood");
+const confidenceBar = document.getElementById("confidenceBar");
+const playback = document.getElementById("playback");
+
+// 🎤 Start Recording
+startBtn.onclick = async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+        mediaRecorder.onstop = async () => {
+            const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+            playback.src = URL.createObjectURL(audioBlob);
+            statusDisplay.textContent = "⏳ Processing your voice...";
+            await analyzeAudio(audioBlob);
+        };
+
+        mediaRecorder.start();
+        statusDisplay.textContent = "🎤 Recording... Speak now";
+        startBtn.disabled = true;
+        stopBtn.disabled = false;
+
+        if (recognition) recognition.start();
+    } catch (err) {
+        console.error("Mic error:", err);
+        statusDisplay.textContent = "❌ Microphone access denied";
+    }
+};
+
+// ⏹ Stop Recording
+stopBtn.onclick = () => {
+    mediaRecorder.stop();
+    startBtn.disabled = false;
+    stopBtn.disabled = true;
+    if (recognition) recognition.stop();
+};
+
+// 🔥 Send Audio to Backend
+async function analyzeAudio(audioBlob) {
+    try {
+        const res = await fetch("http://127.0.0.1:5000/analyze_live_audio", {
+            method: "POST",
+            headers: { 'Content-Type': 'audio/webm' },
+            body: audioBlob
+        });
+        const result = await res.json();
+        if (result.Audio_Emotion) {
+            statusDisplay.textContent = "✅ Analysis Complete";
+            updateEmotionDisplay(result.Audio_Emotion, result.Audio_Conf);
+        } else {
+            statusDisplay.textContent = "🤷 Could not detect clear emotion";
+            updateEmotionDisplay("Uncertain", 0);
+        }
+    } catch (err) {
+        console.error("Error analyzing:", err);
+        statusDisplay.textContent = "⚠️ Analysis failed";
+    }
+}
+
+// ✅ Update UI with emotion + confidence
+function updateEmotionDisplay(emotion, confidence) {
+    const emoji = emotionEmojis[emotion] || '❓';
+    moodDisplay.innerHTML = `<span class="emotion-emoji">${emoji}</span><span>${emotion}</span>`;
+    confidenceBar.style.width = `${Math.round(confidence * 100)}%`;
+    confidenceBar.style.background = confidence > 0.6 ? "#4CAF50" : "#FFA726";
+}
+</script>
+</body>
+</html>
