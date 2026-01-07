@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 Mood Forecast</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button onclick="window.location.href='/dashboard'" class="back-btn">
+    ← Back to Dashboard
+</button>
+<button onclick="logout()" class="logout-btn">🚪 Logout</button>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1>📈 Mood Forecast</h1>
+    <p>Your emotional weather forecast for the coming days</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="feature-card forecast-card">
+      <h3>3-Day Forecast</h3>
+      <div id="forecastContent">
+        <p>Generating your personalized mood forecast...</p>
+        <button onclick="loadMoodForecast()" class="auth-btn secondary" style="background: #a29bfe; margin-top: 15px;">
+          🌤️ Generate Forecast
+        </button>
+      </div>
+    </div>
+
+    <div class="feature-card forecast-card">
+      <h3>Forecast Legend</h3>
+      <div style="font-size: 0.9rem;">
+        <p><span class="mood-up">📈 Improving</span> - Mood expected to rise</p>
+        <p><span class="mood-stable">➡️ Stable</span> - Little change expected</p>
+        <p><span class="mood-down">📉 Declining</span> - Mood may decrease</p>
+        <p style="margin-top: 15px; opacity: 0.8;"><small>Based on your historical patterns and weekly rhythms</small></p>
+      </div>
+    </div>
+
+    <div class="feature-card forecast-card">
+      <h3>Forecast Accuracy</h3>
+      <div style="font-size: 0.9rem; opacity: 0.8;">
+        <p><strong>Today:</strong> ~70% accurate</p>
+        <p><strong>Tomorrow:</strong> ~60% accurate</p>
+        <p><strong>Day 3:</strong> ~50% accurate</p>
+        <p style="margin-top: 10px; font-style: italic;">Accuracy improves with more data and consistent patterns.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <button onclick="loadMoodForecast()" class="auth-btn primary" style="background: #a29bfe;">
+      🔄 Update Forecast
+    </button>
+  </div>
+</div>
+
+<script>
+// Forecast page specific JavaScript
+function loadMoodForecast() {
+    const forecastContent = document.getElementById('forecastContent');
+    forecastContent.innerHTML = '<div class="spinner"></div><p>Generating forecast...</p>';
+    
+    fetch('/api/mood_forecast')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayMoodForecast(data.forecast);
+            } else {
+                forecastContent.innerHTML = `<p>❌ ${data.message}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            forecastContent.innerHTML = '<p>❌ Could not generate forecast</p>';
+        });
+}
+
+function displayMoodForecast(forecast) {
+    const forecastContent = document.getElementById('forecastContent');
+    
+    if (forecast.message) {
+        forecastContent.innerHTML = `
+            <p>${forecast.message}</p>
+            <button onclick="loadMoodForecast()" class="auth-btn secondary" style="background: #a29bfe; margin-top: 15px;">
+                🌤️ Try Again
+            </button>
+        `;
+        return;
+    }
+    
+    let forecastHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <p><strong>Current Baseline Mood:</strong> ${Math.round(forecast.base_mood)}/100</p>
+        </div>
+        <div style="display: grid; gap: 15px;">
+    `;
+    
+    forecast.forecast_days.forEach(day => {
+        const trendSymbol = day.trend === 'improving' ? '📈' : day.trend === 'declining' ? '📉' : '➡️';
+        const trendClass = `mood-${day.trend === 'improving' ? 'up' : day.trend === 'declining' ? 'down' : 'stable'}`;
+        const confidenceColor = day.confidence > 0.7 ? '#00b894' : day.confidence > 0.5 ? '#fdcb6e' : '#e17055';
+        
+        forecastHTML += `
+            <div class="forecast-day" style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong style="font-size: 1.1rem;">${day.day}</strong>
+                        <br>
+                        <small style="opacity: 0.7;">${day.trend} trend</small>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="${trendClass}" style="font-size: 1.2rem; font-weight: bold;">
+                            ${trendSymbol} ${day.predicted_mood}/100
+                        </span>
+                        <br>
+                        <small style="color: ${confidenceColor};">${Math.round(day.confidence * 100)}% confidence</small>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    
+    forecastHTML += `
+        </div>
+        <div style="text-align: center; margin-top: 20px; font-size: 0.9rem; opacity: 0.8;">
+            <p>Forecast generated: ${new Date(forecast.generated_at).toLocaleString()}</p>
+        </div>
+    `;
+    
+    forecastContent.innerHTML = forecastHTML;
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout';
+    }
+}
+
+// Auto-load on page visit
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(loadMoodForecast, 1000);
+});
+</script>
+</body>
+</html>

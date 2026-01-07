@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🧠 MindMirror - Your Profile</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Welcome back, <span id="userName">User</span>!</h1>
+        <p>Your mental wellness journey continues here.</p>
+
+        <!-- User Info Display & Edit Form -->
+        <div class="card" style="max-width: 500px; margin: 0 auto;">
+            <h3>👤 Your Profile</h3>
+            
+            <div id="profileInfo">
+                <p><strong>User ID:</strong> <span id="userIdDisplay"></span></p>
+                <p><strong>Email:</strong> <span id="userEmailDisplay"></span></p>
+                <p><strong>Member since:</strong> <span id="joinDate"></span></p>
+                <button onclick="toggleEdit()" class="auth-btn secondary">✏️ Edit Profile</button>
+            </div>
+
+            <form id="profileForm" class="hidden" onsubmit="updateProfile(event)">
+                <input type="text" id="editName" placeholder="Full Name" required>
+                <input type="email" id="editEmail" placeholder="Email Address" required>
+                <div class="button-group">
+                    <button type="button" onclick="cancelEdit()" class="auth-btn cancel">Cancel</button>
+                    <button type="submit" class="auth-btn primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group" style="margin-top: 40px;">
+            <button onclick="window.location.href='/history'" class="auth-btn secondary">
+                📊 View History
+            </button>
+            <button onclick="window.location.href='/dashboard'" class="auth-btn primary">
+                🧠 New Analysis
+            </button>
+            <button onclick="logout()" class="auth-btn cancel">
+                🚪 Logout
+            </button>
+        </div>
+
+        <!-- Status Message -->
+        <div id="profileStatus" class="hidden" style="margin-top: 20px; text-align: center;"></div>
+    </div>
+
+    <script src="profile.js"></script>
+    
+    <script>
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/logout';
+        }
+    }
+    </script>
+</body>
+</html>

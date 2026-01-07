@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🧠 MindMirror - Login</title>
+    <link rel="stylesheet" href="/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Logo Header -->
+        <div class="logo-header">
+            <h1>🧠 MindMirror 2.0</h1>
+            <p>Your Mental Fitness Tracker</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="auth-box">
+            <!-- New User Section -->
+            <div class="auth-option">
+                <h3>New to MindMirror?</h3>
+                <p>We'll generate a unique ID for you to track your emotional journey.</p>
+                <button onclick="showRegistration()" class="auth-btn primary">Get Started</button>
+            </div>
+
+            <!-- Returning User Section -->
+            <div class="auth-option">
+                <h3>Returning User?</h3>
+                <p>Already have a User ID? Enter it below to continue your journey.</p>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <input type="text" id="userIdInput" placeholder="Enter your User ID" required>
+                    <button type="submit" class="auth-btn secondary">Continue Journey</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Registration Modal (Hidden initially) -->
+        <div id="registrationModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close" onclick="hideRegistration()">&times;</span>
+                <h3>✨ Create Your MindMirror Account</h3>
+                
+                <div class="generated-id-box">
+                    <label>Your Unique ID:</label>
+                    <div class="user-id-display" id="generatedUserId">Generating...</div>
+                    <small>⚠️ Please save this ID for future logins!</small>
+                </div>
+
+                <form id="registerForm" onsubmit="handleRegistration(event)">
+                    <input type="text" id="fullName" placeholder="Full Name" required>
+                    <input type="email" id="email" placeholder="Email Address" required>
+                    <div class="button-group">
+                        <button type="button" onclick="hideRegistration()" class="auth-btn cancel">Cancel</button>
+                        <button type="submit" class="auth-btn primary">Complete Registration</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recovery Link -->
+        <div class="recovery-link">
+            <a href="#" onclick="showRecovery()">Forgot your User ID?</a>
+        </div>
+
+        <!-- Recovery Modal -->
+        <div id="recoveryModal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close" onclick="hideRecovery()">&times;</span>
+                <h3>🔍 Recover Your User ID</h3>
+                <form id="recoveryForm" onsubmit="handleRecovery(event)">
+                    <input type="email" id="recoveryEmail" placeholder="Enter your registered email" required>
+                    <div class="button-group">
+                        <button type="button" onclick="hideRecovery()" class="auth-btn cancel">Cancel</button>
+                        <button type="submit" class="auth-btn secondary">Recover ID</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/auth.js"></script>
+</body>
+</html>

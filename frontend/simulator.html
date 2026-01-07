@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 Digital Twin Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button onclick="window.location.href='/dashboard'" class="back-btn">
+    ← Back to Dashboard
+</button>
+<button onclick="logout()" class="logout-btn">🚪 Logout</button>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1>🤖 Digital Twin Simulator</h1>
+    <p>See how lifestyle changes might affect your mood</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="feature-card simulator-card">
+      <h3>Quick Scenarios</h3>
+      <p>Choose a scenario to simulate:</p>
+      <div class="simulation-buttons">
+        <button onclick="runSimulation('exercise 3 times this week')" class="sim-btn">🏃 Exercise More</button>
+        <button onclick="runSimulation('sleep only 5 hours nightly')" class="sim-btn">😴 Less Sleep</button>
+        <button onclick="runSimulation('socialize with friends twice')" class="sim-btn">👥 Socialize</button>
+        <button onclick="runSimulation('work extra hours daily')" class="sim-btn">💼 Work More</button>
+        <button onclick="runSimulation('meditate daily')" class="sim-btn">🧘 Meditate</button>
+        <button onclick="runSimulation('take a vacation')" class="sim-btn">🌴 Vacation</button>
+      </div>
+    </div>
+
+    <div class="feature-card simulator-card">
+      <h3>Custom Scenario</h3>
+      <p>Create your own what-if scenario:</p>
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <input type="text" id="customScenario" placeholder="e.g., 'read every day'" 
+               style="flex: 1; padding: 10px; border-radius: 8px; border: none; background: rgba(255,255,255,0.2); color: white;">
+        <button onclick="runCustomSimulation()" class="auth-btn secondary">Simulate</button>
+      </div>
+    </div>
+
+    <div class="feature-card simulator-card">
+      <h3>Simulation Results</h3>
+      <div id="simulationResult">
+        <p style="text-align: center; opacity: 0.7;">Run a simulation to see predictions...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Simulator page specific JavaScript
+function runSimulation(scenario) {
+    document.getElementById('customScenario').value = scenario;
+    runCustomSimulation();
+}
+
+function runCustomSimulation() {
+    const scenario = document.getElementById('customScenario').value.trim();
+    if (!scenario) {
+        alert('Please enter a scenario');
+        return;
+    }
+
+    const resultDiv = document.getElementById('simulationResult');
+    resultDiv.innerHTML = '<div class="spinner"></div><p>Running simulation...</p>';
+    
+    fetch('/api/simulate_scenario', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ scenario: scenario })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            displaySimulationResult(data.simulation);
+        } else {
+            resultDiv.innerHTML = `<p>❌ ${data.message}</p>`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        resultDiv.innerHTML = '<p>❌ Could not run simulation</p>';
+    });
+}
+
+function displaySimulationResult(simulation) {
+    const resultDiv = document.getElementById('simulationResult');
+    
+    const moodChange = simulation.predicted_mood - simulation.base_mood;
+    const changeClass = moodChange > 0 ? 'mood-up' : moodChange < 0 ? 'mood-down' : 'mood-stable';
+    const changeSymbol = moodChange > 0 ? '↗' : moodChange < 0 ? '↘' : '→';
+    const changeText = moodChange > 0 ? 'increase' : moodChange < 0 ? 'decrease' : 'no change';
+    
+    resultDiv.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h3 style="margin: 0; color: #74b9ff;">"${simulation.scenario}"</h3>
+        </div>
+        
+        <div style="display: flex; justify-content: center; align-items: center; gap: 20px; margin: 20px 0;">
+            <div style="text-align: center;">
+                <div style="font-size: 0.9rem; opacity: 0.8;">Current</div>
+                <div style="font-size: 2rem; font-weight: bold;">${simulation.base_mood}</div>
+            </div>
+            <div style="font-size: 1.5rem;">→</div>
+            <div style="text-align: center;">
+                <div style="font-size: 0.9rem; opacity: 0.8;">Predicted</div>
+                <div style="font-size: 2rem; font-weight: bold; color: ${moodChange > 0 ? '#00b894' : moodChange < 0 ? '#e17055' : '#74b9ff'}">
+                    ${simulation.predicted_mood}
+                </div>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 15px 0;">
+            <span class="${changeClass}" style="font-size: 1.1rem; font-weight: bold;">
+                ${changeSymbol} ${Math.abs(moodChange)} point ${changeText}
+            </span>
+            <br>
+            <small>Confidence: ${Math.round(simulation.confidence * 100)}%</small>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-top: 15px;">
+            <p><strong>Factors Considered:</strong></p>
+            ${simulation.factors.map(factor => `<p style="margin: 8px 0;">📊 ${factor}</p>`).join('')}
+        </div>
+        
+        ${simulation.recommendations && simulation.recommendations.length > 0 ? `
+        <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px; margin-top: 15px;">
+            <p><strong>Recommendations:</strong></p>
+            ${simulation.recommendations.map(rec => `<p style="margin: 8px 0;">💡 ${rec}</p>`).join('')}
+        </div>
+        ` : ''}
+    `;
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout';
+    }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>🧠 MindMirror - Your History</title>
+    <link rel="stylesheet" href="style.css"> <!-- We'll use the same styling for now -->
+    <link rel="stylesheet" href="history.css"> <!-- For any future custom styles -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- ✅ Logout Button -->
+    <button onclick="logout()" class="logout-btn">
+        🚪 Logout
+    </button>
+    <!-- ✅ NEW: BACK TO PROFILE BUTTON -->
+<button onclick="window.location.href='/profile'" class="logout-btn" style="right: 120px; background: linear-gradient(135deg, #6a11cb, #2575fc);">
+    ← Profile Hub
+</button>
+
+    <div class="container">
+        <h1>📊 Your Emotional Journal History</h1>
+        <p>Here's a record of your past reflections and moods.</p>
+
+        <!-- ✅ Loading Spinner -->
+        <div id="historyLoading" class="hidden">
+            <div class="spinner"></div>
+            <p>Loading your history... 📖</p>
+        </div>
+
+        <!-- ✅ Error Message (Hidden by default) -->
+        <div id="historyError" class="hidden error-message">
+            <p>❌ Could not load your history. Please try again later.</p>
+        </div>
+       <div id="historyInfo" class="hidden" style="text-align: center; margin: 15px 0; font-style: italic; color: rgba(255, 255, 255, 0.8);">
+    Showing latest 5 of X records
+</div>
+        <!-- ✅ History Table -->
+        <div id="historyTableContainer" class="hidden">
+            <table id="entriesTable">
+    <thead>
+        <tr>
+            <th>Date & Time</th>
+            <th>Journal Preview</th>
+            <th>Final Emotion</th>
+            <th>Text Confidence</th>
+            <th>Audio Confidence</th>
+            <th>Mood Score</th> <!-- ✅ NEW COLUMN -->
+            <th>Audio</th> <!-- ✅ NEW COLUMN -->
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Table rows will be inserted here by JavaScript -->
+    </tbody>
+</table>
+        </div>
+
+        <!-- ✅ Buttons -->
+        <div class="button-group">
+            <button onclick="window.location.href='/dashboard'" class="auth-btn secondary">← Back to Analysis</button>
+            <button id="downloadCsvBtn" class="auth-btn primary" disabled>📥 Download Full History (CSV)</button>
+        </div>
+
+        <!-- ✅ Placeholder for Charts (Step 3) -->
+        <div id="chartsSection" class="hidden">
+            <h2>📈 Your Emotional Timeline</h2>
+            <div class="chart-container">
+                <canvas id="moodTimelineChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="history.js"></script>
+    
+    <!-- ✅ Reuse the logout function -->
+    <script>
+    function logout() {
+        if (confirm('Are you sure you want to logout?')) {
+            window.location.href = '/logout';
+        }
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 Personal Insights</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button onclick="window.location.href='/dashboard'" class="back-btn">
+    ← Back to Dashboard
+</button>
+<button onclick="logout()" class="logout-btn">🚪 Logout</button>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1>📊 Personal Insights</h1>
+    <p>Discover your emotional patterns and personal baseline</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="feature-card insights-card">
+      <h3>Your Baseline</h3>
+      <div id="baselineInfo">
+        <p>Calculating your personal patterns...</p>
+      </div>
+    </div>
+
+    <div class="feature-card insights-card">
+      <h3>Your Patterns</h3>
+      <div id="patternsInfo">
+        <p>Detecting your weekly and daily rhythms...</p>
+      </div>
+    </div>
+
+    <div class="feature-card insights-card">
+      <h3>AI Insights</h3>
+      <div id="insightsInfo">
+        <p>Generating personalized insights...</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <button onclick="loadAnalytics()" class="auth-btn primary">
+      🔄 Refresh Insights
+    </button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+<script>
+// Insights page specific JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    loadAnalytics();
+});
+
+function loadAnalytics() {
+    fetch('/api/get_analytics')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayInsights(data);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function displayInsights(data) {
+    // Baseline
+    if (data.baseline) {
+        document.getElementById('baselineInfo').innerHTML = `
+            <p><strong>Average Mood:</strong> ${Math.round(data.baseline.avg_mood_score)}/100</p>
+            <p><strong>Based on:</strong> ${data.baseline.data_points_used} entries</p>
+            <p><small>Voice energy baseline: ${data.baseline.voice_energy_baseline}</small></p>
+        `;
+    }
+
+    // Patterns
+    if (data.patterns) {
+        let patternsHTML = '';
+        if (data.patterns.weekly) {
+            patternsHTML += '<p><strong>Weekly Patterns:</strong></p>';
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            Object.entries(data.patterns.weekly).forEach(([day, score]) => {
+                patternsHTML += `<p>${days[day]}: ${Math.round(score)}/100</p>`;
+            });
+        }
+        if (data.patterns.time_of_day) {
+            patternsHTML += '<p><strong>Daily Patterns:</strong></p>';
+            Object.entries(data.patterns.time_of_day).forEach(([time, score]) => {
+                patternsHTML += `<p>${time}: ${Math.round(score)}/100</p>`;
+            });
+        }
+        document.getElementById('patternsInfo').innerHTML = patternsHTML || '<p>No strong patterns detected yet.</p>';
+    }
+
+    // Insights
+    if (data.insights) {
+        document.getElementById('insightsInfo').innerHTML = 
+            data.insights.map(insight => `<p>• ${insight}</p>`).join('');
+    }
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout';
+    }
+}
+</script>
+</body>
+</html>

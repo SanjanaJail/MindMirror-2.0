@@ -1,0 +1,83 @@
+/* history.css - Specific styles for the history page */
+
+#entriesTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#entriesTable th, #entriesTable td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+#entriesTable th {
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: white;
+    font-weight: bold;
+}
+
+#entriesTable tr:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.error-message {
+    background: linear-gradient(135deg, #ff4757, #ff6b81);
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    margin: 20px 0;
+}
+
+.chart-container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin: 25px 0;
+}
+
+.button-group button {
+    margin: 0;
+}
+/* Style for audio players in the table */
+#entriesTable audio {
+    width: 120px;
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+#entriesTable audio::-webkit-media-controls-panel {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+#entriesTable audio::-webkit-media-controls-play-button {
+    filter: invert(1); /* Make the play button white */
+}
+
+.chart-container {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    height: 400px; /* Fixed height for chart */
+    position: relative;
+}
+#historyInfo {
+    text-align: center;
+    margin: 15px 0;
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}

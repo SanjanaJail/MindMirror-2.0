@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 Burnout Risk Assessment</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button onclick="window.location.href='/dashboard'" class="back-btn">
+    ← Back to Dashboard
+</button>
+<button onclick="logout()" class="logout-btn">🚪 Logout</button>
+
+<div class="page-container">
+  <div class="page-header">
+    <h1>🚨 Burnout Risk Assessment</h1>
+    <p>Monitor your stress levels and prevent burnout</p>
+  </div>
+
+  <div class="content-grid">
+    <div class="feature-card burnout-card">
+      <h3>Risk Assessment</h3>
+      <div id="burnoutContent">
+        <p>Analyzing your stress patterns and emotional trends...</p>
+        <button onclick="checkBurnoutRisk()" class="auth-btn secondary" style="background: #ff6b6b; margin-top: 15px;">
+          🔍 Check Burnout Risk
+        </button>
+      </div>
+    </div>
+
+    <div class="feature-card burnout-card">
+      <h3>Understanding Your Risk</h3>
+      <div style="font-size: 0.9rem; opacity: 0.8;">
+        <p><strong>Low Risk (0-30):</strong> Good balance and coping</p>
+        <p><strong>Medium Risk (31-60):</strong> Watch for stress signs</p>
+        <p><strong>High Risk (61-100):</strong> Consider intervention</p>
+        <p style="margin-top: 15px; font-style: italic;">Based on mood trends, negative emotion frequency, and engagement patterns.</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align: center; margin-top: 30px;">
+    <button onclick="checkBurnoutRisk()" class="auth-btn primary" style="background: #ff6b6b;">
+      🔄 Re-assess Risk
+    </button>
+  </div>
+</div>
+
+<script>
+// Burnout page specific JavaScript
+function checkBurnoutRisk() {
+    const burnoutContent = document.getElementById('burnoutContent');
+    burnoutContent.innerHTML = '<div class="spinner"></div><p>Analyzing your patterns...</p>';
+    
+    fetch('/api/burnout_assessment')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayBurnoutAssessment(data.assessment);
+            } else {
+                burnoutContent.innerHTML = `<p>❌ ${data.message}</p>`;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            burnoutContent.innerHTML = '<p>❌ Could not assess burnout risk</p>';
+        });
+}
+
+function displayBurnoutAssessment(assessment) {
+    const burnoutContent = document.getElementById('burnoutContent');
+    const riskClass = `risk-${assessment.risk_level}`;
+    
+    let triggersHTML = '';
+    if (assessment.triggers && assessment.triggers.length > 0) {
+        triggersHTML = `
+            <div style="margin-top: 15px;">
+                <p><strong>Key Factors:</strong></p>
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                    ${assessment.triggers.map(t => `<p style="margin: 5px 0;">• ${t}</p>`).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    let recommendationsHTML = '';
+    if (assessment.recommendations && assessment.recommendations.length > 0) {
+        recommendationsHTML = `
+            <div style="margin-top: 15px;">
+                <p><strong>Recommendations:</strong></p>
+                <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                    ${assessment.recommendations.map(r => `<p style="margin: 5px 0;">💡 ${r}</p>`).join('')}
+                </div>
+            </div>
+        `;
+    }
+    
+    burnoutContent.innerHTML = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Risk Level: 
+                <span class="risk-indicator ${riskClass}">${assessment.risk_level.toUpperCase()}</span>
+            </h2>
+            <p style="font-size: 1.2rem; margin: 10px 0;"><strong>Score:</strong> ${assessment.risk_score}/100</p>
+            <p style="font-size: 0.9rem; opacity: 0.8;">Based on ${assessment.entries_analyzed} entries</p>
+        </div>
+        ${triggersHTML}
+        ${recommendationsHTML}
+    `;
+}
+
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout';
+    }
+}
+
+// Auto-load on page visit
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(checkBurnoutRisk, 1000);
+});
+</script>
+</body>
+</html>

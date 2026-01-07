@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 MindMirror – Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ✅ LOGOUT BUTTON -->
+<button onclick="logout()" class="logout-btn">
+    🚪 Logout
+</button>
+<button onclick="window.location.href='/profile'" class="logout-btn" style="right: 120px; background: linear-gradient(135deg, #6a11cb, #2575fc);">
+    ← Profile Hub
+</button>
+
+<div class="container">
+  <h1>🧠 MindMirror 2.0</h1>
+  <p>Track your emotions with AI-powered analysis.</p>
+
+  <!-- Journal Input -->
+  <textarea id="journal" placeholder="📝 Write your journal entry here..."></textarea>
+
+  <!-- Audio Upload -->
+  <label class="file-label">🎵 Upload Audio
+    <input type="file" id="audio" accept="audio/*">
+  </label>
+
+  <!-- 🎤 Live Recording -->
+  <div class="recorder">
+    <button id="startRec">🎙 Start Recording</button>
+    <button id="stopRec" disabled>⏹ Stop</button>
+    <p id="recStatus">Not recording</p>
+  </div>
+
+  <!-- Analyze Button -->
+  <button id="analyzeBtn">🔍 Analyze Mood</button>
+  
+  <!-- Loading Spinner -->
+  <div id="loading" class="hidden">
+    <div class="spinner"></div>
+    <p>AI is analyzing your emotions... 🧠</p>
+  </div>
+
+  <!-- Results Section -->
+  <div id="results" class="hidden">
+    <h2>✨ Analysis Results ✨</h2>
+    <div class="card">
+      <strong>📝 Journal Emotion:</strong> <span id="textEmotion"></span>
+      <small>(Confidence: <span id="textConf"></span>)</small>
+    </div>
+    <div class="card">
+      <strong>🎤 Audio Emotion:</strong> <span id="audioEmotion"></span>
+      <small>(Confidence: <span id="audioConf"></span>)</small>
+    </div>
+    <div class="final-mood glow">
+      🌈 <strong>Final Mood:</strong> <span id="finalMood"></span>
+    </div>
+
+    <!-- ✅ NEW: Get Therapy Button -->
+    <button id="getTherapyBtn" class="therapy-btn">
+      🎯 Get Personalized Therapy Plan
+    </button>
+
+    <!-- Quick Stats -->
+    <div style="text-align: center; margin-top: 20px;">
+      <button onclick="window.location.href='/history'" class="auth-btn secondary">
+        📊 View Full History
+      </button>
+    </div>
+  </div>
+
+  <!-- ✅ NEW: Therapeutic Intervention Section -->
+  <div id="therapySection" class="hidden">
+    <h2>🎯 Your Personalized Therapy Plan</h2>
+    
+    <!-- Immediate Relief -->
+    <div class="therapy-category">
+      <h3>🚨 Immediate Relief (5-15 min)</h3>
+      <div id="immediateRelief" class="therapy-items"></div>
+    </div>
+    
+    <!-- Daily Practices -->
+    <div class="therapy-category">
+      <h3>📅 Daily Practices</h3>
+      <div id="dailyPractices" class="therapy-items"></div>
+    </div>
+    
+    <!-- Lifestyle Recommendations -->
+    <div class="therapy-category">
+      <h3>🍎 Lifestyle Tips</h3>
+      <div id="lifestyleTips" class="therapy-items"></div>
+    </div>
+    
+    <!-- Therapeutic Insight -->
+    <div class="therapy-category">
+      <h3>💡 Psychological Insight</h3>
+      <div id="therapeuticInsight" class="therapy-insight"></div>
+    </div>
+  </div>
+
+  <!-- ✅ NEW: Navigation Tabs -->
+  <div class="nav-tabs">
+    <button class="nav-btn" onclick="window.location.href='/insights'">
+      <span class="nav-icon">📊</span>
+      Personal Insights
+    </button>
+    <button class="nav-btn" onclick="window.location.href='/burnout'">
+      <span class="nav-icon">🚨</span>
+      Burnout Risk
+    </button>
+    <button class="nav-btn" onclick="window.location.href='/simulator'">
+      <span class="nav-icon">🤖</span>
+      Digital Twin
+    </button>
+    <button class="nav-btn" onclick="window.location.href='/forecast'">
+      <span class="nav-icon">📈</span>
+      Mood Forecast
+    </button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+<!-- ✅ LOGOUT FUNCTION -->
+<script>
+function logout() {
+    if (confirm('Are you sure you want to logout?')) {
+        window.location.href = '/logout';
+    }
+}
+</script>
+
+</body>
+</html>
